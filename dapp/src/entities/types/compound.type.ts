@@ -7,12 +7,11 @@ export interface Compound {
   TotalBorrow: string;
 }
 
-export interface CompoundItem {
-  symbol: string;
-  totalBalance: string;
-  totalBalanceParsed: any;
-  decimals: string;
-}
+// export interface CompoundItem {
+//   symbol: string;
+//   totalBalance: string;
+//   totalBalanceParsed: any;
+// }
 
 export interface CompoundComptrollerItem {
   name: string;
@@ -20,11 +19,28 @@ export interface CompoundComptrollerItem {
   totalSupply: string;
   totalReserves: string;
   supplyBalance: string;
-  utilization: string;
   cash: string;
   exchangeRate: string;
   totalEarnings: string;
   borrowRatePerBlock: string;
   supplyRatePerBlock: string;
-  earnedARP: string;
+  decimals: string;
+  supplyAPY: string;
+  borrowAPY: string;
+}
+
+export interface CompoundABIItem {
+  name: string;
+  totalBorrows: bigint;
+  totalSupply: bigint;
+  totalReserves: bigint;
+  supplyBalance: bigint;
+  cash: bigint;
+  exchangeRate: string;
+  totalEarnings: string;
+  borrowRatePerBlock: string;
+  supplyRatePerBlock: string;
+  decimals: string;
+  supplyAPY: bigint;
+  borrowAPY: bigint;
 }

@@ -22,7 +22,7 @@ export function calcUtilization(
 
   // Format and return as percentage string
   const utilizationPercentage = (utilizationRate / 100).toFixed(2);
-  return utilizationPercentage + "%";
+  return utilizationPercentage;
 }
 
 export function calcSupplyAPY(dataList: CompoundComptrollerItem[]) {}
@@ -60,4 +60,8 @@ export function convertEarnings(value: string) {
 
   // Return the formatted number as a string
   return formattedNumber;
+}
+
+export function convertEthers(value: string, decimals: string) {
+  return ethers.parseUnits;
 }

@@ -6,13 +6,12 @@ import { COMPOUND_ADDR } from "../constants/compound";
 import CTokenABI from "../abis/CTokenABI.json";
 import ComptrollerABI from "../abis/ComptrollerABI.json";
 import ContractABI from "../abis/ContractABI.json";
+import { calcUtilization } from "@/utils/compound.util";
 
 export async function getTokenBalance(tokenAddr: string) {
   if (typeof window?.ethereum !== "undefined") {
     const oneEighteen = BigInt("1000000000000000000");
     const oneTen = BigInt("10");
-    const oneSix = BigInt("1000000");
-    const oneE18 = 1n * 10n ** 18n;
 
     const blocksPerYear = (365 * 24 * 60 * 60) / 13.3; // Approximately 2371721.80451 blocks per year
 
@@ -33,20 +32,9 @@ export async function getTokenBalance(tokenAddr: string) {
 
     const annualBorrowRate =
       (1 + Number(borrowRatePerBlock) / 1e18) ** blocksPerYear - 1;
-    const earnAPR =
-      (annualBorrowRate * Number(totalBorrows)) /
-      Number(totalSupply + totalReserves);
-    const earnAPRPercentage = earnAPR * 100;
 
-    // const exchangeRate = Number(exchangeRateStored / oneEighteen);
-
-    // const initialValue = Number(totalSupply) / 10 ** Number(decimals);
-    // const totalValue =
-    //   (Number(totalSupply) / 10 ** Number(decimals)) * exchangeRate;
-
-    // const totalInterest = totalValue - initialValue;
-    // const totalReservesConverted = Number(totalReserves / oneEighteen);
-    // const totalEarnings = totalInterest - totalReservesConverted;
+    const annualSupplyRate =
+      (1 + Number(supplyRatePerBlock) / 1e18) ** blocksPerYear - 1;
 
     const exchangeRate = exchangeRateStored / oneEighteen;
 
@@ -56,8 +44,16 @@ export async function getTokenBalance(tokenAddr: string) {
     const totalInterest = totalValue - initialValue;
     const totalReservesConverted = totalReserves / oneEighteen;
     const totalEarnings = totalInterest - totalReservesConverted;
-
-    console.log(totalEarnings);
+    // const interestEarned =
+    //   BigInt((
+    //     calcUtilization(
+    //       String(cash),
+    //       String(totalBorrows),
+    //       String(totalReserves)
+    //     )
+    //   )) * cash;
+    // const interestPaid = totalSupply - cash;
+    // const totalEarnings = Number(interestEarned) - interestPaid - totalReserves;
 
     return {
       // symbol: symbol,
@@ -72,7 +68,10 @@ export async function getTokenBalance(tokenAddr: string) {
       totalEarnings: totalEarnings.toString(),
       supplyRatePerBlock: supplyRatePerBlock.toString(),
       borrowRatePerBlock: borrowRatePerBlock.toString(),
-      earnedARP: earnAPRPercentage.toString(),
+      earnedARP: (annualSupplyRate * 100).toString(),
+      decimals: String(decimals),
+      supplyAPY: (annualSupplyRate * 100).toFixed(2).toString(),
+      borrowAPY: (annualBorrowRate * 100).toFixed(2).toString(),
 
       // totalBalanceParsed: ethers.formatUnits(totalBalance, decimals),
       // decimals: decimals.toString(),
@@ -89,41 +88,3 @@ export async function getTokenBalance(tokenAddr: string) {
     // decimals: decimals.toString(),
   } as CompoundComptrollerItem;
 }
-
-export async function getTokenData(tokenAddr: string) {
-  return {
-    name: "",
-    totalBorrows: "",
-    totalSupply: "",
-    supplyBalance: "",
-    // totalBalanceParsed: ethers.formatUnits(totalBalance, decimals),
-    // decimals: decimals.toString(),
-  } as CompoundComptrollerItem;
-}
-
-function calculateAPRs(
-  borrowRatePerBlock: number,
-  supplyRatePerBlock: number,
-  totalSupply: number,
-  totalBorrows: number,
-  totalReserves: number
-): { earnAPR: number; borrowAPR: number } {
-  // Constants
-  const blocksPerYear = (365 * 24 * 60 * 60) / 13.3; // Approximately 2371721.80451 blocks per year
-
-  // Convert supply rate per block to annual rate
-  const annualSupplyRate = (1 + supplyRatePerBlock / 1e18) ** blocksPerYear - 1;
-
-  // Convert borrow rate per block to annual rate
-  const annualBorrowRate = (1 + borrowRatePerBlock / 1e18) ** blocksPerYear - 1;
-
-  // Calculate Earn APR (Supply APR)
-  const earnAPR =
-    (annualSupplyRate * totalSupply * 1e18) / (totalBorrows + totalReserves);
-
-  // Calculate Borrow APR
-  const borrowAPR =
-    (annualBorrowRate * totalBorrows) / (totalSupply + totalReserves);
-}
-
-// Given parameters

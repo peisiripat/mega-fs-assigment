@@ -3,7 +3,7 @@ import React from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useState, useEffect } from "react";
 import { getTokenBalance } from "@/entities/apis/compound.api";
-import { Button, LinearProgress } from "@mui/material";
+import { Button, Chip, LinearProgress } from "@mui/material";
 import {
   CompoundItem,
   CompoundComptrollerItem,
@@ -24,19 +24,20 @@ import {
 // const balance = await signer.getBalance()
 
 const CompoundPage = () => {
-  const [account, setAccount] = useState("");
-
-  const [pool, setPool] = useState("cETH"); // Default pool example: cETH
-  const [totalSupply, setTotalSupply] = useState("");
-
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const { results, isLoading } = useCompoundListingPage();
+
+  if (typeof window?.ethereum === "undefined") {
+    console.error("MetaMask is not installed");
+    return <></>;
+  }
 
   return (
     <>
       <ConnectButton />
       {console.log(results)}
       <ListingTable
+        loading={isLoading}
         table={{
           data: results || [],
           columns: [
@@ -47,20 +48,23 @@ const CompoundPage = () => {
             {
               Header: "Utilization",
               Cell: (cell) =>
-                calcUtilization(
+                `${calcUtilization(
                   cell.cash,
                   cell.totalBorrows,
                   cell.totalReserves
-                ),
+                )}%`,
             },
-            { Header: "Supply APY" },
-            { Header: "Borrow APY" },
+            { Header: "Supply APY", Cell: (cell) => `${cell.supplyAPY}%` },
+            { Header: "Borrow APY", Cell: (cell) => `${cell.borrowAPY}%` },
 
             {
               Header: "Total Supply (Total Earning)",
               Cell: (cell) =>
-                `${convertToMillions(cell.totalEarnings) + "\t" + cell.name}`,
-              // Cell: (cell) => Number(cell.totalSupply) - Number(cell.cash),
+                Number(cell.totalEarnings) < 0 ? (
+                  <Chip color="error" label="bug" />
+                ) : (
+                  `${cell.totalEarnings}`
+                ), // Cell: (cell) => Number(cell.totalSupply) - Number(cell.cash),
             },
             {
               Header: "Total Borrow",
