@@ -7,10 +7,11 @@ import {
   TableRow,
   TableBody,
   TableHead,
+  TableProps,
 } from "@mui/material";
 import React from "react";
 
-export interface ListingTableProps<T> {
+export interface ListingTableProps<T> extends TableProps {
   loading?: boolean;
   table: DataTable<T>;
 }

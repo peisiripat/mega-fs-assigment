@@ -3,7 +3,7 @@ import React from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useState, useEffect } from "react";
 import { getTokenBalance } from "@/entities/apis/compound.api";
-import { Button, Chip, LinearProgress } from "@mui/material";
+import { Button, Chip, LinearProgress, Paper } from "@mui/material";
 import {
   CompoundItem,
   CompoundComptrollerItem,
@@ -33,10 +33,10 @@ const CompoundPage = () => {
   }
 
   return (
-    <>
+    <Paper sx={{ overflow: "auto" }}>
       <ConnectButton />
-      {console.log(results)}
       <ListingTable
+        sx={{ width: "100%", maxWidth: "100%" }}
         loading={isLoading}
         table={{
           data: results || [],
@@ -74,7 +74,7 @@ const CompoundPage = () => {
           ],
         }}
       />
-    </>
+    </Paper>
   );
 };
 export default CompoundPage;
