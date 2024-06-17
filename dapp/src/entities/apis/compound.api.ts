@@ -17,7 +17,6 @@ export async function getTokenBalance(tokenAddr: string) {
 
     const provider = new ethers.BrowserProvider(window.ethereum, "any");
     const contract = new ethers.Contract(tokenAddr, CTokenABI, provider);
-    console.log(contract);
     const totalBorrows = await contract.totalBorrows();
     const totalSupply = await contract.totalSupply();
     const totalReserves = await contract.totalReserves();
